@@ -10,4 +10,11 @@
     <PackageReference Include="TemplateEngine.Docx" Version="1.1.5" />
   </ItemGroup>
 
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="template.docx" DestinationFolder="$(OutDir)" />
+  </Target>
+  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
+    <Copy SourceFiles="template.docx" DestinationFolder="$(PublishDir)" />
+  </Target>
+
 </Project>
