@@ -1,10 +1,12 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.IO;
+using System;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
+using TemplateEngine.Docx;
+
 
 namespace UbuntuServer.Controllers
 {
@@ -21,7 +23,7 @@ namespace UbuntuServer.Controllers
 
         private List<string> ImportFile(IFormFile file)
         {
-            using var stream = new MemoryStream();
+            using var stream = new System.IO.MemoryStream();
             file.CopyTo(stream);
             stream.Position = 0;
 
@@ -37,5 +39,29 @@ namespace UbuntuServer.Controllers
             return collection;
 
         }
+
+        [HttpPost("CreateDocx")]
+        public async Task<IActionResult> CreateDocxFromTemplate(IFormFile file) 
+        {
+            CreateDocx(file);
+            return Ok();
+        }
+
+        private void CreateDocx(IFormFile file)
+        {				
+            System.IO.File.Delete("OutputDocument.docx");
+            System.IO.File.Copy("template.docx", "output.docx");
+		
+	        var valuesToFill = new Content(
+		        new FieldContent("Report date", DateTime.Now.ToString()));
+
+		    using(var outputDocument = new TemplateProcessor("output.docx")
+				.SetRemoveContentControls(true))
+            {
+                outputDocument.FillContent(valuesToFill);
+                outputDocument.SaveChanges();
+            } 
+		}
+	
     }
 }
